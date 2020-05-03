@@ -14,16 +14,25 @@ def _left_rotate(n: int, d: int) -> int:
     Circular rotation of value 'n' by 'd' bits.
 
     Args:
-        n: 
-        d:
+        n: The value to be processed.
+        d: The numbers of bits to rotate by.
 
-    Returns:
+    Returns: The value processed after being left rotated.
 
     """
     return ((n << d) | (n >> (_WORD_SIZE - d))) & 0xffffffff
 
 
 def sha1(message: str) -> str:
+    """
+    This function calculates the SHA-1 hash value of the message provided.
+
+    Args:
+        message: The string that needs to be processed.
+
+    Returns: The 160-bit hash value of the message.
+
+    """
     h: Tuple[int, int, int, int, int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
 
     # Converting string into bit-string
@@ -75,9 +84,9 @@ def sha1(message: str) -> str:
 
 
 if __name__ == '__main__':
-    # testing the hashing algorithm by running it with example values
+    # Testing the hashing algorithm by running it with example values.
 
-    # Word examples
+    # Word examples.
     value1 = '01010100011010000110010100100000'
     value2 = '01110001011101010110100101100011'
     value3 = '01101011001000000110001001110010'
