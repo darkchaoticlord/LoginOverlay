@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import List, Tuple
 
 # Constants
 _CHUNK_SIZE = 512
@@ -26,10 +26,11 @@ def sha1(message: str) -> str:
     bit_string += bin(len(message) * _CHAR_SIZE)[2:].zfill(_LENGTH_SIZE)
 
     # Create chunks to process
-    chunks = [bit_string[i:i + _CHUNK_SIZE] for i in range(0, len(bit_string), _CHUNK_SIZE)]
+    chunks: List[str] = [bit_string[i:i + _CHUNK_SIZE] for i in range(0, len(bit_string), _CHUNK_SIZE)]
     for chunk in chunks:
-        words = [int(chunk[i:i + _WORD_SIZE], 2) for i in range(0, len(chunk), _WORD_SIZE)] + \
-                [0] * (_TOTAL_ITERATIONS - _TOTAL_WORDS)
+        words: List[int] = [int(chunk[i:i + _WORD_SIZE], 2) for i in range(0, len(chunk), _WORD_SIZE)] + \
+                           [0] * (_TOTAL_ITERATIONS - _TOTAL_WORDS)
+
         for i in range(_TOTAL_WORDS, _TOTAL_ITERATIONS):
             words[i] = _left_rotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1)
 
