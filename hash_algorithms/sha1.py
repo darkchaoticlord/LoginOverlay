@@ -10,6 +10,16 @@ _TOTAL_ITERATIONS = 80
 
 
 def _left_rotate(n: int, d: int) -> int:
+    """
+    Circular rotation of value 'n' by 'd' bits.
+
+    Args:
+        n: 
+        d:
+
+    Returns:
+
+    """
     return ((n << d) | (n >> (_WORD_SIZE - d))) & 0xffffffff
 
 
@@ -28,14 +38,18 @@ def sha1(message: str) -> str:
     # Create chunks to process
     chunks: List[str] = [bit_string[i:i + _CHUNK_SIZE] for i in range(0, len(bit_string), _CHUNK_SIZE)]
     for chunk in chunks:
+        # Each chunk is broken into 16 32-bit values called 'words'
         words: List[int] = [int(chunk[i:i + _WORD_SIZE], 2) for i in range(0, len(chunk), _WORD_SIZE)] + \
                            [0] * (_TOTAL_ITERATIONS - _TOTAL_WORDS)
 
+        # First 16 words are used to calculate the next 64 words (total 80 words).
         for i in range(_TOTAL_WORDS, _TOTAL_ITERATIONS):
             words[i] = _left_rotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1)
 
+        # Each calculated word is used to process the h values
         a, b, c, d, e = h
         for i in range(_TOTAL_ITERATIONS):
+            # Logical functions and k values are used to process the h values.
             if 0 <= i <= 19:
                 f = (b & c) | (~b & d)
                 k = 0x5A827999
@@ -49,11 +63,14 @@ def sha1(message: str) -> str:
                 f = b ^ c ^ d
                 k = 0xCA62C1D6
 
+            # The variables are assigned partially calculated hask of the chunk after every iteration.
             a, b, c, d, e = (_left_rotate(a, 5) + f + e + k + words[i]) & 0xffffffff, a, _left_rotate(b, 30), c, d
 
+        # The result of the chunk’s hash is stored to the overall hash value of all chunks
         h = ((h[0] + a) & 0xffffffff, (h[1] + b) & 0xffffffff, (h[2] + c) & 0xffffffff,
              (h[3] + d) & 0xffffffff, (h[4] + e) & 0xffffffff)
 
+    # The total hashed values have their hex values appeneded to each other and returned as a hex-string.
     return f"{(h[0] << 128 | h[1] << 96 | h[2] << 64 | h[3] << 32 | h[4]):02x}"
 
 
