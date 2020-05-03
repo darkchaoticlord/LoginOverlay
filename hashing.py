@@ -1,66 +1,74 @@
-from typing import List, Tuple
-
-# Constants
-CHUNK_SIZE = 512
-LENGTH_SIZE = 64
-WORD_SIZE = 32
-TOTAL_WORDS = 16
-CHAR_SIZE = 8
-TOTAL_ITERATIONS = 80
+from hash_algorithms.sha1 import sha1
+from hash_algorithms.sha256 import sha256
+from hash_algorithms.sha512 import sha512
+from hash_algorithms.md5 import md5
 
 
-def _left_rotate(n: int, d: int) -> int:
-    return ((n << d) | (n >> (WORD_SIZE - d))) & 0xffffffff
+def main() -> None:
+    while True:
+        print("Welcome to the Cryptography Program!")
+        print("Your options are:")
+        print("0 - [Exit Program]")
+        print("1 - Get the Hash for a message")
 
-
-def sha1(message: str) -> str:
-    h: Tuple[int, int, int, int, int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
-
-    # Converting string into bit-string
-    bit_string: str = ""
-    for char in message:
-        bit_string += bin(ord(char))[2:].zfill(CHAR_SIZE)
-
-    # Padding the bit-string
-    bit_string += "1" + "0" * (CHUNK_SIZE - LENGTH_SIZE - (len(bit_string) % CHUNK_SIZE) - 1)
-    bit_string += bin(len(message) * CHAR_SIZE)[2:].zfill(LENGTH_SIZE)
-
-    # Create chunks to process
-    chunks = [bit_string[i:i + CHUNK_SIZE] for i in range(0, len(bit_string), CHUNK_SIZE)]
-    for chunk in chunks:
-        words = [int(chunk[i:i + WORD_SIZE], 2) for i in range(0, len(chunk), WORD_SIZE)] + \
-                [0] * (TOTAL_ITERATIONS - TOTAL_WORDS)
-        for i in range(TOTAL_WORDS, TOTAL_ITERATIONS):
-            words[i] = _left_rotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1)
-
-        a, b, c, d, e = h
-        for i in range(TOTAL_ITERATIONS):
-            if 0 <= i <= 19:
-                f = (b & c) | (~b & d)
-                k = 0x5A827999
-            elif 20 <= i <= 39:
-                f = b ^ c ^ d
-                k = 0x6ED9EBA1
-            elif 40 <= i <= 59:
-                f = (b & c) | (b & d) | (c & d)
-                k = 0x8F1BBCDC
+        try:
+            choice: int = int(input("Enter your choice: "))
+        except ValueError:
+            print("Value provided is not a number! Try again!")
+        else:
+            if choice == 0:
+                print("Goodbye!")
+                break
+            elif choice == 1:
+                hash_menu()
             else:
-                f = b ^ c ^ d
-                k = 0xCA62C1D6
+                print("No option available for this option number! Try again!")
 
-            a, b, c, d, e = (_left_rotate(a, 5) + f + e + k + words[i]) & 0xffffffff, a, _left_rotate(b, 30), c, d
 
-        h = ((h[0] + a) & 0xffffffff, (h[1] + b) & 0xffffffff, (h[2] + c) & 0xffffffff,
-             (h[3] + d) & 0xffffffff, (h[4] + e) & 0xffffffff)
+def hash_menu() -> None:
+    while True:
+        print("This is the hashing program menu.")
+        print("Choose your hashing alogrithm from the options below:")
+        print("0 - [Exit Program]")
+        print("1 - SHA-1")
+        print("2 - SHA-256")
+        print("3 - SHA-512")
+        print("4 - MD5")
 
-    return f"{(h[0] << 128 | h[1] << 96 | h[2] << 64 | h[3] << 32 | h[4]):02x}"
+        try:
+            choice: int = int(input("Enter your choice: "))
+        except ValueError:
+            print("Value provided is not a number! Try again!")
+        else:
+            if choice == 0:
+                print("Exiting Hashing Program...")
+                break
+            elif choice == 1:
+                message: str = input("Enter the message to calculate hash: ")
+                print(f"The SHA-1 hash value for {message} is calculated to be {hash_value(message, 'SHA-1')}")
+            elif choice == 2:
+                message: str = input("Enter the message to calculate hash: ")
+                print(f"The SHA-256 hash value for {message} is calculated to be {hash_value(message, 'SHA-256')}")
+            elif choice == 3:
+                message: str = input("Enter the message to calculate hash: ")
+                print(f"The SHA-512 hash value for {message} is calculated to be {hash_value(message, 'SHA-512')}")
+            elif choice == 4:
+                message: str = input("Enter the message to calculate hash: ")
+                print(f"The MD5 hash value for {message} is calculated to be {hash_value(message, 'MD5')}")
+            else:
+                print("No option available for this option number! Try again!")
+
+
+def hash_value(message: str, alg_name: str) -> str:
+    if alg_name == "SHA-1":
+        return sha1(message)
+    elif alg_name == "SHA-256":
+        return sha256(message)
+    elif alg_name == "SHA-512":
+        return sha512(message)
+    elif alg_name == "MD5":
+        return md5(message)
 
 
 if __name__ == '__main__':
-    # value1 = '01010100011010000110010100100000'
-    # value2 = '01110001011101010110100101100011'
-    # value3 = '01101011001000000110001001110010'
-    # print(_or(value1, value2, value3))
-    # print(bin(_left_rotate_bits(int(value1, 2), 6))[2:].zfill(32))
-    # print(sha1("The quick brown fox jumps over the lazy dog. There is something I would like to talk about today."))
-    print(sha1("abc"))
+    main()
