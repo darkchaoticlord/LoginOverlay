@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 # Constants
+_TRIMMING_VALUE = 0xffffffff
 _CHUNK_SIZE = 512
 _LENGTH_SIZE = 64
 _WORD_SIZE = 32
@@ -20,7 +21,7 @@ def _left_rotate(n: int, d: int) -> int:
     Returns: The value processed after being left rotated.
 
     """
-    return ((n << d) | (n >> (_WORD_SIZE - d))) & 0xffffffff
+    return ((n << d) | (n >> (_WORD_SIZE - d))) & _TRIMMING_VALUE
 
 
 def sha1(message: str) -> str:
@@ -73,11 +74,14 @@ def sha1(message: str) -> str:
                 k = 0xCA62C1D6
 
             # The variables are assigned partially calculated hask of the chunk after every iteration.
-            a, b, c, d, e = (_left_rotate(a, 5) + f + e + k + words[i]) & 0xffffffff, a, _left_rotate(b, 30), c, d
+            a, b, c, d, e = (_left_rotate(a, 5) + f + e + k + words[i]) & _TRIMMING_VALUE, a, _left_rotate(b, 30), c, d
 
         # The result of the chunk’s hash is stored to the overall hash value of all chunks
-        h = ((h[0] + a) & 0xffffffff, (h[1] + b) & 0xffffffff, (h[2] + c) & 0xffffffff,
-             (h[3] + d) & 0xffffffff, (h[4] + e) & 0xffffffff)
+        h = ((h[0] + a) & _TRIMMING_VALUE,
+             (h[1] + b) & _TRIMMING_VALUE,
+             (h[2] + c) & _TRIMMING_VALUE,
+             (h[3] + d) & _TRIMMING_VALUE,
+             (h[4] + e) & _TRIMMING_VALUE)
 
     # The total hashed values have their hex values appeneded to each other and returned as a hex-string.
     return f"{(h[0] << 128 | h[1] << 96 | h[2] << 64 | h[3] << 32 | h[4]):02x}"
