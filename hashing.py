@@ -14,8 +14,7 @@ def _left_rotate(n: int, d: int) -> int:
 
 
 def sha1(message: str) -> str:
-    h: List[int] = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0]
-    # k: Tuple[int, int, int, int] = (0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6)
+    h: Tuple[int, int, int, int, int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
 
     # Converting string into bit-string
     bit_string: str = ""
@@ -24,7 +23,7 @@ def sha1(message: str) -> str:
 
     # Padding the bit-string
     bit_string += "1" + "0" * (CHUNK_SIZE - LENGTH_SIZE - (len(bit_string) % CHUNK_SIZE) - 1)
-    bit_string += bin(len(message))[2:].zfill(LENGTH_SIZE)
+    bit_string += bin(len(message) * CHAR_SIZE)[2:].zfill(LENGTH_SIZE)
 
     # Create chunks to process
     chunks = [bit_string[i:i + CHUNK_SIZE] for i in range(0, len(bit_string), CHUNK_SIZE)]
@@ -51,13 +50,10 @@ def sha1(message: str) -> str:
 
             a, b, c, d, e = (_left_rotate(a, 5) + f + e + k + words[i]) & 0xffffffff, a, _left_rotate(b, 30), c, d
 
-        h = [(h[0] + a) & 0xffffffff,
-             (h[1] + b) & 0xffffffff,
-             (h[2] + c) & 0xffffffff,
-             (h[3] + d) & 0xffffffff,
-             (h[4] + e) & 0xffffffff]
+        h = ((h[0] + a) & 0xffffffff, (h[1] + b) & 0xffffffff, (h[2] + c) & 0xffffffff,
+             (h[3] + d) & 0xffffffff, (h[4] + e) & 0xffffffff)
 
-    return hex(h[0] << 128 | h[1] << 96 | h[2] << 64 | h[3] << 32 | h[4]).split("x")[1]
+    return f"{(h[0] << 128 | h[1] << 96 | h[2] << 64 | h[3] << 32 | h[4]):02x}"
 
 
 if __name__ == '__main__':
@@ -66,5 +62,5 @@ if __name__ == '__main__':
     # value3 = '01101011001000000110001001110010'
     # print(_or(value1, value2, value3))
     # print(bin(_left_rotate_bits(int(value1, 2), 6))[2:].zfill(32))
-    print(sha1("The quick brown fox jumps over the lazy dog. There is something I would like to talk about today."))
+    # print(sha1("The quick brown fox jumps over the lazy dog. There is something I would like to talk about today."))
     print(sha1("abc"))
