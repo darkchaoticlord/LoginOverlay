@@ -1,27 +1,6 @@
 from typing import List, Tuple
-
-# Constants
-_TRIMMING_VALUE = 0xffffffff
-_CHUNK_SIZE = 512
-_LENGTH_SIZE = 64
-_WORD_SIZE = 32
-_TOTAL_WORDS = 16
-_CHAR_SIZE = 8
-_TOTAL_ITERATIONS = 80
-
-
-def _left_rotate(n: int, d: int) -> int:
-    """
-    Circular rotation of value 'n' by 'd' bits.
-
-    Args:
-        n: The value to be processed.
-        d: The numbers of bits to rotate by.
-
-    Returns: The value processed after being left rotated.
-
-    """
-    return ((n << d) | (n >> (_WORD_SIZE - d))) & _TRIMMING_VALUE
+from .hash_utils import left_rotate, TRIMMING_VALUE, CHUNK_SIZE, LENGTH_SIZE, \
+    WORD_SIZE, TOTAL_WORDS, CHAR_SIZE, TOTAL_ITERATIONS
 
 
 def sha1(message: str) -> str:
@@ -39,26 +18,26 @@ def sha1(message: str) -> str:
     # Converting string into bit-string
     bit_string: str = ""
     for char in message:
-        bit_string += bin(ord(char))[2:].zfill(_CHAR_SIZE)
+        bit_string += bin(ord(char))[2:].zfill(CHAR_SIZE)
 
     # Padding the bit-string
-    bit_string += "1" + "0" * (_CHUNK_SIZE - _LENGTH_SIZE - (len(bit_string) % _CHUNK_SIZE) - 1)
-    bit_string += bin(len(message) * _CHAR_SIZE)[2:].zfill(_LENGTH_SIZE)
+    bit_string += "1" + "0" * (CHUNK_SIZE - LENGTH_SIZE - (len(bit_string) % CHUNK_SIZE) - 1)
+    bit_string += bin(len(message) * CHAR_SIZE)[2:].zfill(LENGTH_SIZE)
 
     # Create chunks to process
-    chunks: List[str] = [bit_string[i:i + _CHUNK_SIZE] for i in range(0, len(bit_string), _CHUNK_SIZE)]
+    chunks: List[str] = [bit_string[i:i + CHUNK_SIZE] for i in range(0, len(bit_string), CHUNK_SIZE)]
     for chunk in chunks:
         # Each chunk is broken into 16 32-bit values called 'words'
-        words: List[int] = [int(chunk[i:i + _WORD_SIZE], 2) for i in range(0, len(chunk), _WORD_SIZE)] + \
-                           [0] * (_TOTAL_ITERATIONS - _TOTAL_WORDS)
+        words: List[int] = [int(chunk[i:i + WORD_SIZE], 2) for i in range(0, len(chunk), WORD_SIZE)] + \
+                           [0] * (TOTAL_ITERATIONS - TOTAL_WORDS)
 
         # First 16 words are used to calculate the next 64 words (total 80 words).
-        for i in range(_TOTAL_WORDS, _TOTAL_ITERATIONS):
-            words[i] = _left_rotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1)
+        for i in range(TOTAL_WORDS, TOTAL_ITERATIONS):
+            words[i] = left_rotate(words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16], 1)
 
         # Each calculated word is used to process the h values
         a, b, c, d, e = h
-        for i in range(_TOTAL_ITERATIONS):
+        for i in range(TOTAL_ITERATIONS):
             # Logical functions and k values are used to process the h values.
             if 0 <= i <= 19:
                 f = (b & c) | (~b & d)
@@ -74,28 +53,28 @@ def sha1(message: str) -> str:
                 k = 0xCA62C1D6
 
             # The variables are assigned partially calculated hask of the chunk after every iteration.
-            a, b, c, d, e = (_left_rotate(a, 5) + f + e + k + words[i]) & _TRIMMING_VALUE, a, _left_rotate(b, 30), c, d
+            a, b, c, d, e = (left_rotate(a, 5) + f + e + k + words[i]) & TRIMMING_VALUE, a, left_rotate(b, 30), c, d
 
         # The result of the chunk’s hash is stored to the overall hash value of all chunks
-        h = ((h[0] + a) & _TRIMMING_VALUE,
-             (h[1] + b) & _TRIMMING_VALUE,
-             (h[2] + c) & _TRIMMING_VALUE,
-             (h[3] + d) & _TRIMMING_VALUE,
-             (h[4] + e) & _TRIMMING_VALUE)
+        h = ((h[0] + a) & TRIMMING_VALUE,
+             (h[1] + b) & TRIMMING_VALUE,
+             (h[2] + c) & TRIMMING_VALUE,
+             (h[3] + d) & TRIMMING_VALUE,
+             (h[4] + e) & TRIMMING_VALUE)
 
     # The total hashed values have their hex values appeneded to each other and returned as a hex-string.
     return f"{(h[0] << 128 | h[1] << 96 | h[2] << 64 | h[3] << 32 | h[4]):02x}"
 
 
-if __name__ == '__main__':
-    # Testing the hashing algorithm by running it with example values.
-
-    # Word examples.
-    value1 = '01010100011010000110010100100000'
-    value2 = '01110001011101010110100101100011'
-    value3 = '01101011001000000110001001110010'
-    print(bin(_left_rotate(int(value1, 2), 6))[2:].zfill(32))
-
-    # Testing out SHA-1 hashing algorithm to see if it works.
-    print(sha1("The quick brown fox jumps over the lazy dog"))  # Answer: 2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
-    print(sha1("abc"))  # Answer: a9993e364706816aba3e25717850c26c9cd0d89d
+# if __name__ == '__main__':
+#     # Testing the hashing algorithm by running it with example values.
+#
+#     # Word examples.
+#     value1 = '01010100011010000110010100100000'
+#     value2 = '01110001011101010110100101100011'
+#     value3 = '01101011001000000110001001110010'
+#     print(bin(left_rotate(int(value1, 2), 6))[2:].zfill(32))
+#
+#     # Testing out SHA-1 hashing algorithm to see if it works.
+#     print(sha1("The quick brown fox jumps over the lazy dog"))  # Answer: 2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
+#     print(sha1("abc"))  # Answer: a9993e364706816aba3e25717850c26c9cd0d89d
