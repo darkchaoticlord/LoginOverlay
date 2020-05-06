@@ -21,7 +21,7 @@ def md5(message: str) -> str:
     chunks: List[str] = [bit_string[i:i + CHUNK_SIZE] for i in range(0, len(bit_string), CHUNK_SIZE)]
     # print(chunks)
     for chunk in chunks:
-        words = [int(chunk[i:i + WORD_SIZE]) for i in range(0, len(chunk), WORD_SIZE)]
+        words: List[int] = [int(chunk[i:i + WORD_SIZE], 2) for i in range(0, len(chunk), WORD_SIZE)]
 
         a, b, c, d = h
         for i in range(LENGTH_SIZE):
@@ -38,19 +38,20 @@ def md5(message: str) -> str:
                 f = c ^ (b | ~d)
                 g = (7 * i) % TOTAL_WORDS
 
+            # print(str(g).zfill(2), f"{words[g]:032b}")
             f = (f + a + k[i] + words[g]) & TRIMMING_VALUE
             a = d
             d = c
             c = b
             b = (b + left_rotate(f, s[i])) & TRIMMING_VALUE
-            # a, b, c, d = d, b + left_rotate(f + a + k[i] + words[g], s[i]) & TRIMMING_VALUE, b, c
+            # a, b, c, d = d, (b + left_rotate(f + a + k[i] + words[g], s[i])) & TRIMMING_VALUE, b, c
 
         h = ((h[0] + a) & TRIMMING_VALUE,
              (h[1] + b) & TRIMMING_VALUE,
              (h[2] + c) & TRIMMING_VALUE,
              (h[3] + d) & TRIMMING_VALUE)
 
-    result = f"{(h[0] << 96 | h[1] << 64 | h[2] << 32 | h[3]):02x}"
+    result: str = f"{(h[0] << 96 | h[1] << 64 | h[2] << 32 | h[3]):02x}"
     # result = "".join([hex(x)[2:] for x in h])
     return result
 
