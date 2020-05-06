@@ -45,16 +45,16 @@ def hash_menu() -> None:
                 break
             elif choice == 1:
                 message: str = input("Enter the message to calculate hash: ")
-                print(f"The SHA-1 hash value for {message} is calculated to be {hash_value(message, 'SHA-1')}")
+                print(f"The SHA-1 hash value for '{message}' is calculated to be: {hash_value(message, 'SHA-1')}")
             elif choice == 2:
                 message: str = input("Enter the message to calculate hash: ")
-                print(f"The SHA-256 hash value for {message} is calculated to be {hash_value(message, 'SHA-256')}")
+                print(f"The SHA-256 hash value for '{message}' is calculated to be: {hash_value(message, 'SHA-256')}")
             elif choice == 3:
                 message: str = input("Enter the message to calculate hash: ")
-                print(f"The SHA-512 hash value for {message} is calculated to be {hash_value(message, 'SHA-512')}")
+                print(f"The SHA-512 hash value for '{message}' is calculated to be: {hash_value(message, 'SHA-512')}")
             elif choice == 4:
                 message: str = input("Enter the message to calculate hash: ")
-                print(f"The MD5 hash value for {message} is calculated to be {hash_value(message, 'MD5')}")
+                print(f"The MD5 hash value for '{message}' is calculated to be: {hash_value(message, 'MD5')}")
             else:
                 print("No option available for this option number! Try again!")
 

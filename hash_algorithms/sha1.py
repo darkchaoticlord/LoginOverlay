@@ -1,6 +1,6 @@
 from typing import List, Tuple
-from .hash_utils import left_rotate, TRIMMING_VALUE, CHUNK_SIZE, LENGTH_SIZE, \
-    WORD_SIZE, TOTAL_WORDS, CHAR_SIZE, TOTAL_ITERATIONS
+from .hash_utils import left_rotate, message_bit_padding, TRIMMING_VALUE, CHUNK_SIZE, \
+    LENGTH_SIZE, WORD_SIZE, TOTAL_WORDS, CHAR_SIZE, TOTAL_ITERATIONS
 
 
 def sha1(message: str) -> str:
@@ -16,13 +16,7 @@ def sha1(message: str) -> str:
     h: Tuple[int, int, int, int, int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
 
     # Converting string into bit-string
-    bit_string: str = ""
-    for char in message:
-        bit_string += bin(ord(char))[2:].zfill(CHAR_SIZE)
-
-    # Padding the bit-string
-    bit_string += "1" + "0" * (CHUNK_SIZE - LENGTH_SIZE - (len(bit_string) % CHUNK_SIZE) - 1)
-    bit_string += bin(len(message) * CHAR_SIZE)[2:].zfill(LENGTH_SIZE)
+    bit_string: str = message_bit_padding(message)
 
     # Create chunks to process
     chunks: List[str] = [bit_string[i:i + CHUNK_SIZE] for i in range(0, len(bit_string), CHUNK_SIZE)]
