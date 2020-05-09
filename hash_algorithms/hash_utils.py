@@ -1,3 +1,5 @@
+from typing import List
+
 # Constants
 TRIMMING_VALUE = 0xffffffff
 CHUNK_SIZE = 512
@@ -30,9 +32,20 @@ def message_bit_padding(message: str) -> str:
 
     # Padding the bit-string
     bit_string += "1" + "0" * (CHUNK_SIZE - LENGTH_SIZE - (len(bit_string) % CHUNK_SIZE) - 1)
-    bit_string += bin(len(message) * CHAR_SIZE)[2:].zfill(LENGTH_SIZE)
-
     return bit_string
+
+
+def char_big_to_little_endian(bit_string: str) -> str:
+    result: str = ""
+    for i in range(0, len(bit_string), CHAR_SIZE):
+        result += bit_string[i: i + CHAR_SIZE][::-1]
+    return result
+
+
+def int_little_to_big_endian(int_value: int) -> int:
+    bit_string: str = bin(int_value)[2:].zfill(WORD_SIZE)
+    bit_string_list: List[str] = [bit_string[i: i + CHAR_SIZE] for i in range(0, len(bit_string), CHAR_SIZE)]
+    return int("".join(bit_string_list[::-1]), 2)
 
 
 # if __name__ == '__main__':
@@ -43,3 +56,13 @@ def message_bit_padding(message: str) -> str:
 #     value2 = '01110001011101010110100101100011'
 #     value3 = '01101011001000000110001001110010'
 #     print(bin(left_rotate(int(value1, 2), 6))[2:].zfill(32))
+#
+#     # Checking big to little endian conversion
+#     value_big = "011000010110001001100011"
+#     value_little = "100001100100011011000110"
+#     print(char_big_to_little_endian(value_big) == value_little)
+#
+#     # Checking little to big endian conversion
+#     int_value_little = 2555380112
+#     int_value_big = 2416005272
+#     print(int_little_to_big_endian(int_value_little) == int_value_big)

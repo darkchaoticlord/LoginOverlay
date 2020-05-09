@@ -1,59 +1,64 @@
 from typing import List, Tuple
-from .hash_utils import left_rotate, message_bit_padding, CHUNK_SIZE, LENGTH_SIZE, \
-    TOTAL_WORDS, TRIMMING_VALUE, WORD_SIZE
+from hash_algorithms.hash_utils import (
+    left_rotate,
+    message_bit_padding,
+    char_big_to_little_endian,
+    int_little_to_big_endian,
+    CHAR_SIZE,
+    CHUNK_SIZE,
+    LENGTH_SIZE,
+    TOTAL_WORDS,
+    TRIMMING_VALUE,
+    WORD_SIZE
+)
 import math
 
 
 def md5(message: str) -> str:
-    s: List[int] = [7, 12, 17, 22] * 4 + [5, 9, 14, 20] * 4 + [4, 11, 16, 23] * 4 + [6, 10, 15, 21] * 4
-    # for i in range(0, 64, 16):
-    #     print(s[i:i + 16])
-
     k: List[int] = [math.floor(2 ** WORD_SIZE * abs(math.sin(i + 1))) for i in range(LENGTH_SIZE)]
-    # for i in range(0, 64, 4):
-    #     print([hex(x) for x in k[i:i + 4]])
-
     h: Tuple[int, int, int, int] = (0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476)
 
-    bit_string: str = message_bit_padding(message)
-    # print(len(bit_string))
+    bit_string: str = char_big_to_little_endian(message_bit_padding(message))
+    bit_string += bin(len(message) * CHAR_SIZE)[2:].zfill(LENGTH_SIZE)[::-1]
 
     chunks: List[str] = [bit_string[i:i + CHUNK_SIZE] for i in range(0, len(bit_string), CHUNK_SIZE)]
     # print(chunks)
     for chunk in chunks:
-        words: List[int] = [int(chunk[i:i + WORD_SIZE], 2) for i in range(0, len(chunk), WORD_SIZE)]
+        words: List[int] = [int(chunk[i:i + WORD_SIZE][::-1], 2) for i in range(0, len(chunk), WORD_SIZE)]
 
         a, b, c, d = h
         for i in range(LENGTH_SIZE):
             if 0 <= i <= 15:
-                f = (b & c) | (~b & d)
-                g = i
+                f: int = (b & c) | (~b & d)
+                g: int = i
+                s: List[int] = [7, 12, 17, 22]
             elif 16 <= i <= 31:
-                f = (d & b) | (~d & c)
-                g = (5 * i + 1) % TOTAL_WORDS
+                f: int = (d & b) | (~d & c)
+                g: int = (5 * i + 1) % TOTAL_WORDS
+                s: List[int] = [5, 9, 14, 20]
             elif 32 <= i <= 47:
-                f = b ^ c ^ d
-                g = (3 * i + 5) % TOTAL_WORDS
+                f: int = b ^ c ^ d
+                g: int = (3 * i + 5) % TOTAL_WORDS
+                s: List[int] = [4, 11, 16, 23]
             else:
-                f = c ^ (b | ~d)
-                g = (7 * i) % TOTAL_WORDS
+                f: int = c ^ (b | ~d)
+                g: int = (7 * i) % TOTAL_WORDS
+                s: List[int] = [6, 10, 15, 21]
 
-            # print(str(g).zfill(2), f"{words[g]:032b}")
-            f = (f + a + k[i] + words[g]) & TRIMMING_VALUE
-            a = d
-            d = c
-            c = b
-            b = (b + left_rotate(f, s[i])) & TRIMMING_VALUE
-            # a, b, c, d = d, (b + left_rotate(f + a + k[i] + words[g], s[i])) & TRIMMING_VALUE, b, c
+            temp: int = (f + a + k[i] + words[g]) & TRIMMING_VALUE
+            a, b, c, d = d, (b + left_rotate(temp, s[i % 4])) & TRIMMING_VALUE, b, c
 
         h = ((h[0] + a) & TRIMMING_VALUE,
              (h[1] + b) & TRIMMING_VALUE,
              (h[2] + c) & TRIMMING_VALUE,
              (h[3] + d) & TRIMMING_VALUE)
 
-    result: str = f"{(h[0] << 96 | h[1] << 64 | h[2] << 32 | h[3]):02x}"
-    # result = "".join([hex(x)[2:] for x in h])
-    return result
+    h = (int_little_to_big_endian(h[0]),
+         int_little_to_big_endian(h[1]),
+         int_little_to_big_endian(h[2]),
+         int_little_to_big_endian(h[3]))
+
+    return f"{(h[0] << 96 | h[1] << 64 | h[2] << 32 | h[3]):02x}"
 
 
 # if __name__ == '__main__':

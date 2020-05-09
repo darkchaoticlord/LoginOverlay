@@ -1,6 +1,15 @@
 from typing import List, Tuple
-from .hash_utils import left_rotate, message_bit_padding, TRIMMING_VALUE, CHUNK_SIZE, \
-    LENGTH_SIZE, WORD_SIZE, TOTAL_WORDS, CHAR_SIZE, TOTAL_ITERATIONS
+from hash_algorithms.hash_utils import (
+    left_rotate,
+    message_bit_padding,
+    TRIMMING_VALUE,
+    CHAR_SIZE,
+    CHUNK_SIZE,
+    LENGTH_SIZE,
+    TOTAL_WORDS,
+    TOTAL_ITERATIONS,
+    WORD_SIZE
+)
 
 
 def sha1(message: str) -> str:
@@ -17,6 +26,7 @@ def sha1(message: str) -> str:
 
     # Converting string into bit-string
     bit_string: str = message_bit_padding(message)
+    bit_string += bin(len(message) * CHAR_SIZE)[2:].zfill(LENGTH_SIZE)
 
     # Create chunks to process
     chunks: List[str] = [bit_string[i:i + CHUNK_SIZE] for i in range(0, len(bit_string), CHUNK_SIZE)]
@@ -62,12 +72,6 @@ def sha1(message: str) -> str:
 
 # if __name__ == '__main__':
 #     # Testing the hashing algorithm by running it with example values.
-#
-#     # Word examples.
-#     value1 = '01010100011010000110010100100000'
-#     value2 = '01110001011101010110100101100011'
-#     value3 = '01101011001000000110001001110010'
-#     print(bin(left_rotate(int(value1, 2), 6))[2:].zfill(32))
 #
 #     # Testing out SHA-1 hashing algorithm to see if it works.
 #     print(sha1("The quick brown fox jumps over the lazy dog"))  # Answer: 2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
