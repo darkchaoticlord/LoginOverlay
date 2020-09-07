@@ -22,6 +22,9 @@ def sha1(message: str) -> str:
     Returns: The 160-bit hash value of the message.
 
     """
+    if not isinstance(message, str):
+        raise ValueError("Message provided must be a string.")
+
     h: Tuple[int, int, int, int, int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
 
     # Converting string into bit-string
@@ -59,7 +62,7 @@ def sha1(message: str) -> str:
             # The variables are assigned partially calculated hask of the chunk after every iteration.
             a, b, c, d, e = (left_rotate(a, 5) + f + e + k + words[i]) & TRIMMING_VALUE, a, left_rotate(b, 30), c, d
 
-        # The result of the chunk’s hash is stored to the overall hash value of all chunks
+        # The result of the chunk’s hash is stored to the overall hash value of all chunks.
         h = ((h[0] + a) & TRIMMING_VALUE,
              (h[1] + b) & TRIMMING_VALUE,
              (h[2] + c) & TRIMMING_VALUE,
@@ -68,11 +71,3 @@ def sha1(message: str) -> str:
 
     # The total hashed values have their hex values appeneded to each other and returned as a hex-string.
     return f"{(h[0] << 128 | h[1] << 96 | h[2] << 64 | h[3] << 32 | h[4]):02x}"
-
-
-# if __name__ == '__main__':
-#     # Testing the hashing algorithm by running it with example values.
-#
-#     # Testing out SHA-1 hashing algorithm to see if it works.
-#     print(sha1("The quick brown fox jumps over the lazy dog"))  # Answer: 2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
-#     print(sha1("abc"))  # Answer: a9993e364706816aba3e25717850c26c9cd0d89d

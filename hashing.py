@@ -5,6 +5,14 @@ from hash_algorithms.md5 import md5
 
 
 def main() -> None:
+    """
+    The main function that is the first function called. Here,
+    the starting text-based menu has been set up to allow
+    users to decide what action to perform next.
+
+    Returns: None (void function)
+
+    """
     while True:
         print("Welcome to the Cryptography Program!")
         print("Your options are:")
@@ -26,6 +34,16 @@ def main() -> None:
 
 
 def hash_menu() -> None:
+    """
+    This is the text-based menu for trying out various hashing algorithms
+    built within this project. This allows users to choose what algorithm
+    to use when creating a hash value for a message (string).
+
+    [NOTE]: This is mainly built for quick usage of the hash algorithms.
+
+    Returns: None (void function)
+
+    """
     while True:
         print("This is the hashing program menu.")
         print("Choose your hashing alogrithm from the options below:")
@@ -43,23 +61,33 @@ def hash_menu() -> None:
             if choice == 0:
                 print("Exiting Hashing Program...")
                 break
-            elif choice == 1:
-                message: str = input("Enter the message to calculate hash: ")
+
+            message: str = input("Enter the message to calculate hash: ")
+
+            if choice == 1:
                 print(f"The SHA-1 hash value for '{message}' is calculated to be: {hash_value(message, 'SHA-1')}")
             elif choice == 2:
-                message: str = input("Enter the message to calculate hash: ")
                 print(f"The SHA-256 hash value for '{message}' is calculated to be: {hash_value(message, 'SHA-256')}")
             elif choice == 3:
-                message: str = input("Enter the message to calculate hash: ")
                 print(f"The SHA-512 hash value for '{message}' is calculated to be: {hash_value(message, 'SHA-512')}")
             elif choice == 4:
-                message: str = input("Enter the message to calculate hash: ")
                 print(f"The MD5 hash value for '{message}' is calculated to be: {hash_value(message, 'MD5')}")
             else:
                 print("No option available for this option number! Try again!")
 
 
 def hash_value(message: str, alg_name: str) -> str:
+    """
+    This a tiny function that, given the message and the name of the Hashing
+    Algorithm, provides the hash value for that message.
+
+    Args:
+        message: A string containing the text to be hashed.
+        alg_name: The name of the alogrithm.
+
+    Returns: The hash value for the message provided.
+
+    """
     if alg_name == "SHA-1":
         return sha1(message)
     elif alg_name == "SHA-256":
